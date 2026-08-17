@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="description" content="فاکتورینو؛ صدور فاکتور حرفه‌ای، سریع و آفلاین با ثبت صوتی اقلام">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="فاکتورینو">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <link rel="stylesheet" href="css/styles.css">
+  <title>فاکتورینو | فاکتور حرفه‌ای</title>
+</head>
+  <script src="js/db.js"></script>
+  <script src="js/voice.js"></script>
+  <script src="js/sync.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // چک کردن login
+    (function() {
+      const token = localStorage.getItem('factorino_token');
+      if (!token) {
+        window.location.href = '/login.html';
+        return;
+      }
+      
+      // شروع sync خودکار
+      window.addEventListener('DOMContentLoaded', () => {
+        window.FactorinoSync.startAutoSync();
+        
+        // Pull داده‌های اولیه (اگر دیتابیس خالی باشد)
+        window.FactorinoDB.loadState().then(state => {
+          if (state.products.length === 0 && state.customers.length === 0 && state.invoices.length === 0) {
+            console.log('📥 دریافت داده‌های اولیه...');
+            window.FactorinoSync.pullInitialData().then(success => {
+              if (success) {
+                window.location.reload();
+              }
+            });
+          }
+        });
+      });
+    })();
+  </script>
+
+<body>
+  <div id="offlineBar" class="offline-bar" hidden>اینترنت قطع است؛ اطلاعات شما همچنان روی همین دستگاه ذخیره می‌شود.</div>
+
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="منوی اصلی">
+      <a class="brand" href="#dashboard" data-route="dashboard" aria-label="فاکتورینو، صفحه اصلی">
+        <span class="brand-mark"><svg><use href="#i-receipt"></use></svg></span>
+        <span><strong>فاکتورینو</strong><small>فروش، ساده و حرفه‌ای</small></span>
+      </a>
+      <nav class="side-nav">
+        <a href="#dashboard" data-route="dashboard" class="active"><svg><use href="#i-dashboard"></use></svg><span>پیشخوان</span></a>
+        <a href="#new-invoice" data-route="new-invoice"><svg><use href="#i-plus-receipt"></use></svg><span>فاکتور جدید</span><kbd>+</kbd></a>
+        <a href="#invoices" data-route="invoices"><svg><use href="#i-receipt"></use></svg><span>فاکتورها</span></a>
+        <a href="#products" data-route="products"><svg><use href="#i-box"></use></svg><span>محصولات</span></a>
+        <a href="#customers" data-route="customers"><svg><use href="#i-users"></use></svg><span>مشتری‌ها</span></a>
+        <a href="#reports" data-route="reports"><svg><use href="#i-chart"></use></svg><span>گزارش‌ها</span></a>
+      </nav>
+      <div class="sidebar-bottom">
+        <button id="installBtn" class="install-button" hidden><svg><use href="#i-download"></use></svg><span>نصب روی گوشی</span></button>
+        <a href="#settings" data-route="settings"><svg><use href="#i-settings"></use></svg><span>تنظیمات و پشتیبان</span></a>
+        <div class="storage-note"><span class="status-dot"></span><span>ذخیره امن روی دستگاه</span></div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <h1 id="pageTitle">پیشخوان</h1>
+          <p id="todayLabel"></p>
+        </div>
+        <div class="top-actions">
+          <button id="mobileInstallBtn" class="icon-button" hidden aria-label="نصب برنامه"><svg><use href="#i-download"></use></svg></button>
+          <button class="avatar-button" data-route-button="settings" aria-label="تنظیمات کسب‌وکار"><span id="avatarInitial">ف</span><span class="avatar-copy"><strong id="headerBusinessName">کسب‌وکار من</strong><small>تنظیمات</small></span></button>
+        </div>
+      </header>
+
+      <section id="view-dashboard" class="view active" data-view="dashboard">
+        <div id="setupBanner" class="setup-banner" hidden>
+          <div class="setup-icon"><svg><use href="#i-sparkles"></use></svg></div>
+          <div><strong>برای اولین فاکتور آماده‌اید؟</strong><p>ابتدا اطلاعات کسب‌وکار و محصولات خود را ثبت کنید.</p></div>
+          <button class="btn btn-secondary" data-route-button="settings">تکمیل مشخصات</button>
+          <button class="btn btn-primary" data-route-button="products">افزودن محصول</button>
+        </div>
+
+        <div class="stat-grid">
+          <article class="stat-card accent"><span class="stat-icon"><svg><use href="#i-wallet"></use></svg></span><div><p>فروش این ماه</p><strong id="statMonthSales">۰</strong><small id="statMonthCompare">بدون فروش ثبت‌شده</small></div></article>
+          <article class="stat-card"><span class="stat-icon green"><svg><use href="#i-receipt"></use></svg></span><div><p>فاکتورهای این ماه</p><strong id="statMonthInvoices">۰</strong><small>فاکتور نهایی</small></div></article>
+          <article class="stat-card"><span class="stat-icon amber"><svg><use href="#i-clock"></use></svg></span><div><p>مطالبات</p><strong id="statReceivables">۰</strong><small id="statUnpaidCount">۰ فاکتور پرداخت‌نشده</small></div></article>
+          <article class="stat-card"><span class="stat-icon sky"><svg><use href="#i-users"></use></svg></span><div><p>مشتری‌ها</p><strong id="statCustomers">۰</strong><small>مشتری ثبت‌شده</small></div></article>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="panel chart-panel">
+            <div class="panel-head"><div><h2>روند فروش</h2><p>۷ روز گذشته</p></div><button class="text-button" data-route-button="reports">گزارش کامل <svg><use href="#i-chevron-left"></use></svg></button></div>
+            <div class="mini-chart-wrap"><canvas id="dashboardChart" height="240" aria-label="نمودار فروش هفت روز گذشته"></canvas><div id="dashboardChartEmpty" class="chart-empty" hidden>با ثبت فاکتور، نمودار فروش اینجا نمایش داده می‌شود.</div></div>
+          </article>
+          <article class="panel quick-panel">
+            <div class="panel-head"><div><h2>دسترسی سریع</h2><p>کارهای پرتکرار</p></div></div>
+            <div class="quick-grid">
+              <button data-route-button="new-invoice"><span><svg><use href="#i-plus-receipt"></use></svg></span><strong>فاکتور جدید</strong><small>صدور سریع</small></button>
+              <button data-action="start-voice-invoice"><span class="voice"><svg><use href="#i-mic"></use></svg></span><strong>ثبت با صدا</strong><small>نام و تعداد</small></button>
+              <button data-action="open-product"><span><svg><use href="#i-box"></use></svg></span><strong>محصول جدید</strong><small>نام و قیمت</small></button>
+              <button data-action="open-customer"><span><svg><use href="#i-user-plus"></use></svg></span><strong>مشتری جدید</strong><small>اطلاعات خریدار</small></button>
+            </div>
+          </article>
+        </div>
+
+        <article class="panel table-panel">
+          <div class="panel-head"><div><h2>آخرین فاکتورها</h2><p>آخرین فعالیت‌های فروش</p></div><button class="text-button" data-route-button="invoices">مشاهده همه <svg><use href="#i-chevron-left"></use></svg></button></div>
+          <div class="table-wrap"><table><thead><tr><th>شماره</th><th>مشتری</th><th>تاریخ</th><th>مبلغ کل</th><th>وضعیت</th><th></th></tr></thead><tbody id="recentInvoicesBody"></tbody></table><div id="recentEmpty" class="empty-state table-empty" hidden><svg><use href="#i-receipt"></use></svg><strong>هنوز فاکتوری ثبت نشده</strong><button class="btn btn-primary btn-sm" data-route-button="new-invoice">ساخت اولین فاکتور</button></div></div>
+        </article>
+      </section>
+
+      <section id="view-new-invoice" class="view" data-view="new-invoice">
+        <div class="invoice-toolbar">
+          <div class="invoice-number-box"><span>شماره فاکتور</span><strong id="editorInvoiceNumber">—</strong></div>
+          <div class="toolbar-actions"><button id="resetInvoiceBtn" class="btn btn-ghost"><svg><use href="#i-refresh"></use></svg>پاک‌کردن فرم</button><button id="saveDraftBtn" class="btn btn-secondary">ذخیره پیش‌نویس</button><button id="saveInvoiceBtn" class="btn btn-primary"><svg><use href="#i-check"></use></svg>ثبت نهایی</button></div>
+        </div>
+
+        <div class="invoice-layout">
+          <div class="invoice-main-column">
+            <article class="panel form-panel">
+              <div class="section-title"><span>۱</span><div><h2>خریدار و محل فروش</h2><p>انتخاب مشتری یا ثبت اطلاعات محل تحویل</p></div></div>
+              <div class="form-grid three">
+                <label class="field span-2"><span>مشتری</span><div class="input-with-action"><select id="invoiceCustomer"><option value="">انتخاب مشتری...</option></select><button type="button" class="mini-action" data-action="open-customer" aria-label="مشتری جدید"><svg><use href="#i-user-plus"></use></svg></button></div></label>
+                <label class="field"><span>تاریخ صدور</span><input id="invoiceDate" type="date"></label>
+                <label class="field span-3"><span>محل فروش / آدرس تحویل</span><input id="invoicePlace" type="text" placeholder="مثلاً شعبه مرکزی، خیابان ..."></label>
+              </div>
+            </article>
+
+            <article class="panel form-panel voice-card" id="voiceCard">
+              <div class="section-title"><span>۲</span><div><h2>ثبت صوتی هوشمند</h2><p>نام محصول و تعداد را بگویید؛ مثل «دو تا قهوه و سه آب معدنی»</p></div><span class="beta-badge">آزمایشی</span></div>
+              <div class="voice-layout">
+                <button id="voiceButton" class="mic-button" type="button"><span class="mic-rings"></span><svg><use href="#i-mic"></use></svg><strong>شروع گفتن</strong></button>
+                <div class="voice-output">
+                  <div class="voice-status"><span id="voiceDot"></span><strong id="voiceStatus">آماده شنیدن</strong></div>
+                  <p id="voiceTranscript">برای شروع روی میکروفن بزنید و واضح صحبت کنید.</p>
+                  <div id="voiceResults" class="voice-results"></div>
+                  <div class="voice-hints"><span>نمونه:</span><button type="button" data-sample-voice="دو تا قهوه">«دو تا قهوه»</button><button type="button" data-sample-voice="سه آب معدنی و یک کیک">«سه آب معدنی و یک کیک»</button></div>
+                </div>
+              </div>
+              <div id="voiceUnsupported" class="notice warning" hidden><svg><use href="#i-alert"></use></svg><span>مرورگر شما تشخیص گفتار را پشتیبانی نمی‌کند. برای بهترین نتیجه از Chrome یا Edge روی Android استفاده کنید.</span></div>
+            </article>
+
+            <article class="panel form-panel">
+              <div class="section-title"><span>۳</span><div><h2>اقلام فاکتور</h2><p>محصول را جست‌وجو یا به‌صورت دستی اضافه کنید</p></div></div>
+              <div class="add-line-bar">
+                <label class="field grow"><span>محصول</span><input id="lineProductSearch" list="productOptions" autocomplete="off" placeholder="نام یا کد محصول..."><datalist id="productOptions"></datalist></label>
+                <label class="field qty-field"><span>تعداد</span><input id="lineQty" type="number" min="0.01" step="0.01" value="1" inputmode="decimal"></label>
+                <button id="addLineBtn" class="btn btn-primary add-line-btn"><svg><use href="#i-plus"></use></svg>افزودن</button>
+              </div>
+              <div class="invoice-lines"><table><thead><tr><th>ردیف</th><th>شرح محصول</th><th>قیمت واحد</th><th>تعداد</th><th>تخفیف</th><th>مبلغ</th><th></th></tr></thead><tbody id="invoiceLinesBody"></tbody></table><div id="invoiceLinesEmpty" class="empty-state lines-empty"><svg><use href="#i-box"></use></svg><strong>هنوز محصولی به فاکتور اضافه نشده</strong><p>از کادر بالا یا میکروفن استفاده کنید.</p></div></div>
+            </article>
+          </div>
+
+          <aside class="invoice-summary-column">
+            <article class="panel sticky-summary">
+              <h2>خلاصه فاکتور</h2>
+              <div class="summary-row"><span>جمع اقلام</span><strong id="sumSubtotal">۰</strong></div>
+              <label class="summary-input"><span>تخفیف کل</span><div><input id="invoiceDiscount" type="number" value="0" min="0" inputmode="numeric"><small id="summaryCurrency1">تومان</small></div></label>
+              <label class="summary-input"><span>مالیات</span><div><input id="invoiceTax" type="number" value="0" min="0" max="100" step="0.1" inputmode="decimal"><small>٪</small></div></label>
+              <label class="summary-input"><span>هزینه ارسال</span><div><input id="invoiceShipping" type="number" value="0" min="0" inputmode="numeric"><small id="summaryCurrency2">تومان</small></div></label>
+              <div class="summary-total"><span>مبلغ قابل پرداخت</span><strong id="sumTotal">۰</strong><small id="summaryCurrency3">تومان</small></div>
+              <label class="field"><span>وضعیت پرداخت</span><select id="invoicePaymentStatus"><option value="unpaid">پرداخت‌نشده</option><option value="partial">پرداخت بخشی</option><option value="paid">پرداخت‌شده</option></select></label>
+              <label class="field"><span>یادداشت فاکتور</span><textarea id="invoiceNotes" rows="3" placeholder="توضیحات، شرایط پرداخت یا پیام تشکر..."></textarea></label>
+              <button id="summarySaveBtn" class="btn btn-primary btn-block"><svg><use href="#i-check"></use></svg>ثبت نهایی فاکتور</button>
+              <button id="previewCurrentBtn" class="btn btn-ghost btn-block"><svg><use href="#i-eye"></use></svg>پیش‌نمایش چاپ</button>
+              <p class="auto-save"><span></span>اطلاعات فرم به‌صورت خودکار نگه‌داری می‌شود</p>
+            </article>
+          </aside>
+        </div>
+      </section>
+
+      <section id="view-products" class="view" data-view="products">
+        <div class="page-actions"><div class="search-box"><svg><use href="#i-search"></use></svg><input id="productSearch" type="search" placeholder="جست‌وجوی نام، کد یا دسته‌بندی..."></div><button class="btn btn-primary" data-action="open-product"><svg><use href="#i-plus"></use></svg>محصول جدید</button></div>
+        <div class="summary-strip"><div><span>تعداد محصولات</span><strong id="productCount">۰</strong></div><div><span>میانگین قیمت</span><strong id="productAverage">۰</strong></div><div><span>قابل استفاده در وویس</span><strong id="productVoiceCount">۰</strong></div></div>
+        <article class="panel table-panel"><div class="table-wrap"><table><thead><tr><th>محصول</th><th>کد</th><th>دسته‌بندی</th><th>واحد</th><th>قیمت فروش</th><th>نام‌های صوتی</th><th></th></tr></thead><tbody id="productsBody"></tbody></table><div id="productsEmpty" class="empty-state big-empty" hidden><svg><use href="#i-box"></use></svg><h3>اولین محصول را ثبت کنید</h3><p>فقط نام و قیمت کافی است؛ جزئیات دیگر اختیاری‌اند.</p><button class="btn btn-primary" data-action="open-product"><svg><use href="#i-plus"></use></svg>افزودن محصول</button></div></div></article>
+      </section>
+
+      <section id="view-customers" class="view" data-view="customers">
+        <div class="page-actions"><div class="search-box"><svg><use href="#i-search"></use></svg><input id="customerSearch" type="search" placeholder="جست‌وجوی نام، تلفن یا شهر..."></div><button class="btn btn-primary" data-action="open-customer"><svg><use href="#i-user-plus"></use></svg>مشتری جدید</button></div>
+        <div class="summary-strip"><div><span>کل مشتری‌ها</span><strong id="customerCount">۰</strong></div><div><span>مشتری فعال این ماه</span><strong id="activeCustomerCount">۰</strong></div><div><span>فروش به مشتری‌ها</span><strong id="customerSales">۰</strong></div></div>
+        <article class="panel table-panel"><div class="table-wrap"><table><thead><tr><th>نام / مجموعه</th><th>تلفن</th><th>شهر</th><th>تعداد فاکتور</th><th>جمع خرید</th><th></th></tr></thead><tbody id="customersBody"></tbody></table><div id="customersEmpty" class="empty-state big-empty" hidden><svg><use href="#i-users"></use></svg><h3>هنوز مشتری ندارید</h3><p>اطلاعات خریدارها را یک‌بار وارد و در فاکتورهای بعدی انتخاب کنید.</p><button class="btn btn-primary" data-action="open-customer"><svg><use href="#i-user-plus"></use></svg>افزودن مشتری</button></div></div></article>
+      </section>
+
+      <section id="view-invoices" class="view" data-view="invoices">
+        <div class="page-actions wrap"><div class="search-box"><svg><use href="#i-search"></use></svg><input id="invoiceSearch" type="search" placeholder="شماره فاکتور یا نام مشتری..."></div><select id="invoiceStatusFilter" class="filter-select"><option value="all">همه وضعیت‌ها</option><option value="final">نهایی</option><option value="draft">پیش‌نویس</option><option value="paid">پرداخت‌شده</option><option value="unpaid">پرداخت‌نشده</option></select><button class="btn btn-primary" data-route-button="new-invoice"><svg><use href="#i-plus"></use></svg>فاکتور جدید</button></div>
+        <article class="panel table-panel"><div class="table-wrap"><table><thead><tr><th>شماره</th><th>خریدار / محل</th><th>تاریخ</th><th>تعداد اقلام</th><th>مبلغ کل</th><th>پرداخت</th><th>نوع</th><th></th></tr></thead><tbody id="invoicesBody"></tbody></table><div id="invoicesEmpty" class="empty-state big-empty" hidden><svg><use href="#i-receipt"></use></svg><h3>فاکتوری پیدا نشد</h3><p>یک فاکتور تازه صادر کنید یا فیلترها را تغییر دهید.</p><button class="btn btn-primary" data-route-button="new-invoice"><svg><use href="#i-plus"></use></svg>صدور فاکتور</button></div></div></article>
+      </section>
+
+      <section id="view-reports" class="view" data-view="reports">
+        <div class="report-filters panel"><label class="field"><span>از تاریخ</span><input id="reportFrom" type="date"></label><label class="field"><span>تا تاریخ</span><input id="reportTo" type="date"></label><label class="field"><span>وضعیت</span><select id="reportStatus"><option value="final">فاکتورهای نهایی</option><option value="all">همه فاکتورها</option><option value="paid">پرداخت‌شده</option><option value="unpaid">پرداخت‌نشده</option></select></label><button id="applyReportBtn" class="btn btn-primary">اعمال گزارش</button><button id="exportReportBtn" class="btn btn-secondary"><svg><use href="#i-download"></use></svg>خروجی CSV</button></div>
+        <div class="stat-grid report-stats"><article class="stat-card"><span class="stat-icon green"><svg><use href="#i-wallet"></use></svg></span><div><p>فروش دوره</p><strong id="reportSales">۰</strong><small id="reportInvoiceCount">۰ فاکتور</small></div></article><article class="stat-card"><span class="stat-icon amber"><svg><use href="#i-clock"></use></svg></span><div><p>مانده وصول</p><strong id="reportDue">۰</strong><small>فاکتورهای تسویه‌نشده</small></div></article><article class="stat-card"><span class="stat-icon sky"><svg><use href="#i-trending"></use></svg></span><div><p>میانگین فاکتور</p><strong id="reportAverage">۰</strong><small>در بازه انتخابی</small></div></article><article class="stat-card"><span class="stat-icon purple"><svg><use href="#i-box"></use></svg></span><div><p>تعداد اقلام</p><strong id="reportItems">۰</strong><small>واحد فروخته‌شده</small></div></article></div>
+        <div class="reports-grid"><article class="panel report-chart"><div class="panel-head"><div><h2>فروش در بازه زمانی</h2><p id="reportRangeLabel">—</p></div></div><div class="large-chart-wrap"><canvas id="reportChart" height="280"></canvas><div id="reportChartEmpty" class="chart-empty" hidden>داده‌ای برای نمایش وجود ندارد.</div></div></article><article class="panel top-products"><div class="panel-head"><div><h2>پرفروش‌ترین محصولات</h2><p>براساس مبلغ فروش</p></div></div><div id="topProductsList" class="rank-list"></div></article></div>
+        <article class="panel table-panel"><div class="panel-head"><div><h2>جزئیات گزارش</h2><p>فاکتورهای موجود در بازه</p></div></div><div class="table-wrap"><table><thead><tr><th>شماره</th><th>مشتری</th><th>تاریخ</th><th>مبلغ</th><th>وضعیت</th></tr></thead><tbody id="reportBody"></tbody></table><div id="reportEmpty" class="empty-state table-empty" hidden>داده‌ای در این بازه پیدا نشد.</div></div></article>
+      </section>
+
+      <section id="view-settings" class="view" data-view="settings">
+        <form id="settingsForm" class="settings-grid">
+          <div class="settings-main">
+            <article class="panel settings-card"><div class="panel-head"><div><h2>اطلاعات فروشنده</h2><p>این موارد بالای فاکتور چاپ می‌شوند.</p></div></div><div class="business-logo-row"><button id="logoPickerBtn" type="button" class="logo-picker"><img id="logoPreview" alt="لوگو" hidden><span id="logoPlaceholder"><svg><use href="#i-image"></use></svg><small>افزودن لوگو</small></span></button><input id="logoInput" type="file" accept="image/png,image/jpeg,image/webp" hidden><div><strong>لوگوی کسب‌وکار</strong><p>PNG یا JPG، حداکثر ۱ مگابایت</p><button id="removeLogoBtn" type="button" class="text-button danger" hidden>حذف لوگو</button></div></div><div class="form-grid two"><label class="field span-2"><span>نام کسب‌وکار *</span><input id="settingBusinessName" name="businessName" required placeholder="مثلاً فروشگاه نمونه"></label><label class="field"><span>نام صاحب کسب‌وکار</span><input id="settingOwner" name="owner" placeholder="نام و نام خانوادگی"></label><label class="field"><span>شماره تماس</span><input id="settingPhone" name="phone" inputmode="tel" placeholder="۰۹۱۲... یا ۰۲۱..."></label><label class="field"><span>شناسه / شماره اقتصادی</span><input id="settingTaxId" name="taxId" placeholder="اختیاری"></label><label class="field"><span>ایمیل</span><input id="settingEmail" name="email" type="email" dir="ltr" placeholder="info@example.com"></label><label class="field span-2"><span>آدرس</span><textarea id="settingAddress" name="address" rows="2" placeholder="آدرس کامل فروشنده"></textarea></label></div></article>
+            <article class="panel settings-card"><div class="panel-head"><div><h2>تنظیمات فاکتور</h2><p>شماره‌گذاری و محاسبات پیش‌فرض</p></div></div><div class="form-grid two"><label class="field"><span>پیشوند شماره فاکتور</span><input id="settingPrefix" name="invoicePrefix" dir="ltr" placeholder="INV-"></label><label class="field"><span>شماره فاکتور بعدی</span><input id="settingNextNumber" name="nextInvoiceNumber" type="number" min="1"></label><label class="field"><span>واحد پول</span><select id="settingCurrency" name="currency"><option value="تومان">تومان</option><option value="ریال">ریال</option><option value="افغانی">افغانی</option><option value="دلار">دلار</option><option value="یورو">یورو</option></select></label><label class="field"><span>مالیات پیش‌فرض</span><div class="input-suffix"><input id="settingTax" name="taxPercent" type="number" min="0" max="100" step="0.1"><small>٪</small></div></label><label class="field span-2"><span>متن پایین فاکتور</span><textarea id="settingFooter" name="invoiceFooter" rows="2" placeholder="از خرید شما سپاسگزاریم."></textarea></label></div></article>
+          </div>
+          <aside class="settings-side">
+            <article class="panel settings-card"><div class="panel-head"><div><h2>پشتیبان رمزنگاری‌شده</h2><p>تمام داده‌ها در یک JSON رمزنگاری‌شده</p></div><span class="secure-badge"><svg><use href="#i-lock"></use></svg>امن</span></div><div class="notice info"><svg><use href="#i-info"></use></svg><span>داده‌های اصلی در IndexedDB همین دستگاه‌اند و فایل عمومی JSON ندارند. خروجی پشتیبان با AES‑GCM رمز می‌شود.</span></div><label class="field"><span>رمز پشتیبان</span><div class="password-wrap"><input id="backupPassword" type="password" minlength="6" autocomplete="new-password" placeholder="حداقل ۶ کاراکتر"><button id="togglePassword" type="button" aria-label="نمایش رمز"><svg><use href="#i-eye"></use></svg></button></div></label><button id="exportBackupBtn" type="button" class="btn btn-secondary btn-block"><svg><use href="#i-lock"></use></svg>دانلود پشتیبان امن</button><label class="btn btn-ghost btn-block file-label"><svg><use href="#i-upload"></use></svg>بازیابی پشتیبان<input id="importBackupInput" type="file" accept="application/json,.json" hidden></label><p class="micro-copy">رمز قابل بازیابی نیست؛ آن را در جای امن نگه دارید.</p></article>
+            <article class="panel settings-card"><div class="panel-head"><div><h2>نصب و نگه‌داری</h2><p>وضعیت برنامه روی این دستگاه</p></div></div><div class="app-status-list"><div><span class="status-icon ok"><svg><use href="#i-check"></use></svg></span><span><strong>ذخیره محلی</strong><small>فعال و بدون فایل قابل افشا</small></span></div><div><span class="status-icon ok"><svg><use href="#i-wifi-off"></use></svg></span><span><strong>اجرای آفلاین</strong><small>پس از اولین بارگذاری</small></span></div><div><span class="status-icon" id="pwaStatusIcon"><svg><use href="#i-phone"></use></svg></span><span><strong>نسخه نصب‌شدنی</strong><small id="pwaStatusText">آماده نصب</small></span></div></div><button id="settingsInstallBtn" type="button" class="btn btn-primary btn-block"><svg><use href="#i-download"></use></svg>نصب روی گوشی</button></article>
+            <button type="submit" class="btn btn-primary btn-block save-settings"><svg><use href="#i-check"></use></svg>ذخیره تنظیمات</button>
+            <button id="clearAllBtn" type="button" class="danger-zone">حذف کامل همه اطلاعات این دستگاه</button>
+          </aside>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <nav class="mobile-nav" aria-label="منوی موبایل">
+    <a href="#dashboard" data-route="dashboard" class="active"><svg><use href="#i-dashboard"></use></svg><span>خانه</span></a>
+    <a href="#products" data-route="products"><svg><use href="#i-box"></use></svg><span>محصولات</span></a>
+    <a href="#new-invoice" data-route="new-invoice" class="mobile-add"><span><svg><use href="#i-plus"></use></svg></span><b>فاکتور</b></a>
+    <a href="#invoices" data-route="invoices"><svg><use href="#i-receipt"></use></svg><span>فاکتورها</span></a>
+    <a href="#reports" data-route="reports"><svg><use href="#i-chart"></use></svg><span>گزارش</span></a>
+  </nav>
+
+  <dialog id="productDialog" class="app-dialog">
+    <form id="productForm" method="dialog">
+      <div class="dialog-head"><div><h2 id="productDialogTitle">محصول جدید</h2><p>نام و قیمت الزامی است؛ بقیه موارد اختیاری‌اند.</p></div><button type="button" class="dialog-close" data-close-dialog="productDialog"><svg><use href="#i-x"></use></svg></button></div>
+      <input id="productId" type="hidden">
+      <div class="form-grid two dialog-body"><label class="field span-2"><span>نام محصول *</span><input id="productName" required maxlength="80" placeholder="مثلاً قهوه اسپرسو"></label><label class="field"><span>قیمت فروش *</span><div class="input-suffix"><input id="productPrice" required type="number" min="0" inputmode="numeric" placeholder="0"><small class="currency-label">تومان</small></div></label><label class="field"><span>واحد شمارش</span><select id="productUnit"><option>عدد</option><option>بسته</option><option>کیلوگرم</option><option>گرم</option><option>متر</option><option>لیتر</option><option>ساعت</option><option>خدمت</option></select></label><label class="field"><span>کد محصول</span><input id="productSku" maxlength="30" placeholder="اختیاری" dir="ltr"></label><label class="field"><span>دسته‌بندی</span><input id="productCategory" maxlength="40" placeholder="مثلاً نوشیدنی"></label><label class="field span-2"><span>نام‌های جایگزین برای تشخیص صدا</span><input id="productAliases" maxlength="160" placeholder="مثلاً اسپرسو، قهوه تلخ (با ویرگول جدا کنید)"><small>اگر گفتار نام محصول را متفاوت تشخیص می‌دهد، شکل‌های دیگر را بنویسید.</small></label></div>
+      <div class="dialog-actions"><button type="button" class="btn btn-ghost" data-close-dialog="productDialog">انصراف</button><button type="submit" class="btn btn-primary"><svg><use href="#i-check"></use></svg>ذخیره محصول</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="customerDialog" class="app-dialog">
+    <form id="customerForm" method="dialog">
+      <div class="dialog-head"><div><h2 id="customerDialogTitle">مشتری جدید</h2><p>اطلاعات خریدار و محل فروش را ثبت کنید.</p></div><button type="button" class="dialog-close" data-close-dialog="customerDialog"><svg><use href="#i-x"></use></svg></button></div>
+      <input id="customerId" type="hidden">
+      <div class="form-grid two dialog-body"><label class="field span-2"><span>نام شخص یا مجموعه *</span><input id="customerName" required maxlength="100" placeholder="مثلاً شرکت نمونه یا علی رضایی"></label><label class="field"><span>تلفن</span><input id="customerPhone" inputmode="tel" maxlength="30" placeholder="۰۹۱۲..."></label><label class="field"><span>شناسه ملی / اقتصادی</span><input id="customerTaxId" maxlength="30" placeholder="اختیاری"></label><label class="field"><span>شهر</span><input id="customerCity" maxlength="50" placeholder="مثلاً تهران"></label><label class="field"><span>کد پستی</span><input id="customerPostal" inputmode="numeric" maxlength="20" placeholder="اختیاری"></label><label class="field span-2"><span>آدرس / محل تحویل</span><textarea id="customerAddress" rows="3" maxlength="300" placeholder="آدرس کامل یا نام شعبه"></textarea></label><label class="field span-2"><span>توضیحات</span><input id="customerNote" maxlength="160" placeholder="نکته‌ای که باید درباره این مشتری بدانید"></label></div>
+      <div class="dialog-actions"><button type="button" class="btn btn-ghost" data-close-dialog="customerDialog">انصراف</button><button type="submit" class="btn btn-primary"><svg><use href="#i-check"></use></svg>ذخیره مشتری</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="previewDialog" class="preview-dialog">
+    <div class="preview-dialog-bar"><strong>پیش‌نمایش فاکتور</strong><div><button id="printInvoiceBtn" class="btn btn-primary"><svg><use href="#i-print"></use></svg>ذخیره PDF / چاپ</button><button type="button" class="dialog-close" data-close-dialog="previewDialog"><svg><use href="#i-x"></use></svg></button></div></div>
+    <div id="previewContent" class="paper-preview"></div>
+  </dialog>
+
+  <dialog id="confirmDialog" class="confirm-dialog">
+    <form method="dialog"><span class="confirm-icon"><svg><use href="#i-alert"></use></svg></span><h2 id="confirmTitle">آیا مطمئن هستید؟</h2><p id="confirmText"></p><div><button value="cancel" class="btn btn-ghost">انصراف</button><button value="confirm" id="confirmActionBtn" class="btn btn-danger">حذف</button></div></form>
+  </dialog>
+
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+  <div id="printArea" class="print-area" aria-hidden="true"></div>
+
+  <svg class="svg-sprite" aria-hidden="true">
+    <symbol id="i-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
+    <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3h12a1 1 0 0 1 1 1v18l-3-2-2 2-2-2-2 2-2-2-3 2V4a1 1 0 0 1 1-1Z"/><path d="M9 8h6M9 12h6M9 16h3"/></symbol>
+    <symbol id="i-plus-receipt" viewBox="0 0 24 24"><path d="M6 3h12a1 1 0 0 1 1 1v18l-3-2-2 2-2-2-2 2-3-2V4a1 1 0 0 1 1-1Z"/><path d="M12 8v7M8.5 11.5h7"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="m4 7 8-4 8 4-8 4-8-4Z"/><path d="M4 7v10l8 4 8-4V7M12 11v10"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06-2.83 2.83-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21h-4v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06-2.83-2.83.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3v-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06 2.83-2.83.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3h4v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06 2.83 2.83-.06.06A1.65 1.65 0 0 0 19.4 9c.12.6.64 1 1.24 1H21v4h-.09c-.6 0-1.12.4-1.51 1Z"/></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M3 6h15a2 2 0 0 1 2 2v11H5a2 2 0 0 1-2-2V6Z"/><path d="M3 6a3 3 0 0 1 3-3h11v3M16 12h6v4h-6a2 2 0 0 1 0-4Z"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></symbol>
+    <symbol id="i-user-plus" viewBox="0 0 24 24"><path d="M15 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8" cy="7" r="4"/><path d="M19 8v6M16 11h6"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5M4 21h16"/></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3 1.3 3.7L17 8l-3.7 1.3L12 13l-1.3-3.7L7 8l3.7-1.3L12 3ZM5 14l.8 2.2L8 17l-2.2.8L5 20l-.8-2.2L2 17l2.2-.8L5 14ZM19 13l.9 2.1L22 16l-2.1.9L19 19l-.9-2.1L16 16l2.1-.9L19 13Z"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 6M20 4v7h-7"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.8 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.8a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+    <symbol id="i-trending" viewBox="0 0 24 24"><path d="m3 17 6-6 4 4 8-8M15 7h6v6"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+    <symbol id="i-wifi-off" viewBox="0 0 24 24"><path d="m2 2 20 20M8.5 8.5A13 13 0 0 1 21 9M3 9a13 13 0 0 1 3.5-1.8M5 13a10 10 0 0 1 7.5-2.9M12 18h.01M8.5 16a5 5 0 0 1 5.5-.8"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></symbol>
+    <symbol id="i-print" viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5 5 19"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V3h8v3M6 6l1 15h10l1-15M10 10v7M14 10v7"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+  </svg>
+
+  <script src="js/db.js"></script>
+  <script src="js/voice.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

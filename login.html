@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#4f46e5">
+  <title>ورود به فاکتورینو</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 3h12a1 1 0 0 1 1 1v18l-3-2-2 2-2-2-2 2-2-2-3 2V4a1 1 0 0 1 1-1z"/>
+            <path d="M8 8h8M8 12h8M8 16h5"/>
+          </svg>
+        </div>
+        <h1>فاکتورینو</h1>
+        <p>فاکتور حرفه‌ای، سریع و آفلاین</p>
+      </div>
+
+      <div id="loginForm" class="auth-form">
+        <h2>ورود به حساب کاربری</h2>
+        <form id="loginFormElement">
+          <div class="form-group">
+            <label>ایمیل</label>
+            <input type="email" id="loginEmail" required autocomplete="email" placeholder="example@email.com" dir="ltr">
+          </div>
+          <div class="form-group">
+            <label>رمز عبور</label>
+            <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="حداقل ۶ کاراکتر">
+          </div>
+          <button type="submit" class="btn-primary" id="loginBtn">
+            <span>ورود</span>
+          </button>
+        </form>
+        <p class="switch-form">حساب کاربری ندارید? <a href="#" id="showRegister">ثبت‌نام کنید</a></p>
+      </div>
+
+      <div id="registerForm" class="auth-form" hidden>
+        <h2>ثبت‌نام حساب جدید</h2>
+        <form id="registerFormElement">
+          <div class="form-group">
+            <label>نام کسب‌وکار *</label>
+            <input type="text" id="registerBusinessName" required placeholder="فروشگاه نمونه">
+          </div>
+          <div class="form-group">
+            <label>ایمیل *</label>
+            <input type="email" id="registerEmail" required autocomplete="email" placeholder="example@email.com" dir="ltr">
+          </div>
+          <div class="form-group">
+            <label>رمز عبور * (حداقل ۶ کاراکتر)</label>
+            <input type="password" id="registerPassword" required minlength="6" autocomplete="new-password" placeholder="رمز عبور قوی انتخاب کنید">
+          </div>
+          <div class="form-group">
+            <label>نام صاحب کسب‌وکار (اختیاری)</label>
+            <input type="text" id="registerOwner" placeholder="نام و نام خانوادگی">
+          </div>
+          <div class="form-group">
+            <label>شماره تماس (اختیاری)</label>
+            <input type="tel" id="registerPhone" placeholder="09123456789" dir="ltr">
+          </div>
+          <button type="submit" class="btn-primary" id="registerBtn">
+            <span>ثبت‌نام و ورود</span>
+          </button>
+        </form>
+        <p class="switch-form">قبلاً ثبت‌نام کرده‌اید? <a href="#" id="showLogin">ورود</a></p>
+      </div>
+
+      <div id="loadingOverlay" class="loading-overlay" hidden>
+        <div class="spinner"></div>
+        <p id="loadingText">در حال پردازش...</p>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" hidden></div>
+  </div>
+
+  <script src="js/auth.js"></script>
+</body>
+</html>

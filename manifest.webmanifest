@@ -1,0 +1,42 @@
+{
+  "id": "./",
+  "name": "فاکتورینو | فاکتور حرفه‌ای",
+  "short_name": "فاکتورینو",
+  "description": "صدور فاکتور حرفه‌ای، گزارش فروش و ثبت صوتی اقلام؛ آفلاین و امن روی دستگاه",
+  "lang": "fa-IR",
+  "dir": "rtl",
+  "start_url": "./#dashboard",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#f6f7fb",
+  "theme_color": "#4f46e5",
+  "categories": ["business", "finance", "productivity"],
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "فاکتور جدید",
+      "short_name": "فاکتور جدید",
+      "description": "صدور یک فاکتور تازه",
+      "url": "./#new-invoice",
+      "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "محصولات",
+      "short_name": "محصولات",
+      "url": "./#products",
+      "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "گزارش فروش",
+      "short_name": "گزارش",
+      "url": "./#reports",
+      "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}
