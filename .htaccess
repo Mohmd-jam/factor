@@ -1,0 +1,95 @@
+# ============================================================
+#  فاکتورینو — پیکربندی Apache (XAMPP و cPanel)
+# ============================================================
+
+# ------------------------------------------------------------
+# ۱) صفحه پیش‌فرض
+# ------------------------------------------------------------
+DirectoryIndex index.html index.php
+
+# ------------------------------------------------------------
+# ۲) جلوگیری از فهرست شدن محتوای پوشه‌ها
+# ------------------------------------------------------------
+Options -Indexes +FollowSymLinks
+
+# ------------------------------------------------------------
+# ۳) مسدود کردن فایل‌های حساس
+# ------------------------------------------------------------
+<FilesMatch "^(\.env.*|\.git.*|composer\.(json|lock)|package(-lock)?\.json|server\.js|.*\.sql|.*\.md|.*\.log|.*\.sqlite|.*\.bak|.*~)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# فایل‌های مخفی (dotfiles)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule "(^|/)\." - [F]
+</IfModule>
+
+# ------------------------------------------------------------
+# ۴) هدرهای امنیتی
+# ------------------------------------------------------------
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), camera=(), payment=(), microphone=(self)"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  # حذف اطلاعات نسخه PHP
+  Header always unset X-Powered-By
+  Header unset X-Powered-By
+
+  # سرویس‌ورکر باید همیشه تازه باشد
+  <FilesMatch "^(sw\.js|manifest\.webmanifest)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+# ------------------------------------------------------------
+# ۵) نوع محتوا و کدگذاری UTF-8
+# ------------------------------------------------------------
+AddDefaultCharset UTF-8
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
+  AddType image/svg+xml .svg
+  AddType font/woff2 .woff2
+  AddCharset UTF-8 .html .css .js .json .webmanifest .svg
+</IfModule>
+
+# ------------------------------------------------------------
+# ۶) فشرده‌سازی
+# ------------------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml \
+    application/javascript application/json application/manifest+json image/svg+xml
+</IfModule>
+
+# ------------------------------------------------------------
+# ۷) کش مرورگر
+# ------------------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css              "access plus 7 days"
+  ExpiresByType application/javascript "access plus 7 days"
+  ExpiresByType image/png             "access plus 30 days"
+  ExpiresByType image/jpeg            "access plus 30 days"
+  ExpiresByType image/svg+xml         "access plus 30 days"
+  ExpiresByType font/woff2            "access plus 365 days"
+  ExpiresByType text/html             "access plus 0 seconds"
+</IfModule>
+
+# ------------------------------------------------------------
+# ۸) تنظیمات PHP (در صورت پشتیبانی هاست)
+# ------------------------------------------------------------
+<IfModule mod_php.c>
+  php_flag display_errors off
+  php_flag expose_php off
+  php_value upload_max_filesize 8M
+  php_value post_max_size 8M
+  php_value default_charset "UTF-8"
+</IfModule>

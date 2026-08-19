@@ -15,37 +15,6 @@
   <link rel="stylesheet" href="css/styles.css">
   <title>فاکتورینو | فاکتور حرفه‌ای</title>
 </head>
-  <script src="js/db.js"></script>
-  <script src="js/voice.js"></script>
-  <script src="js/sync.js"></script>
-  <script src="js/app.js"></script>
-  <script>
-    // چک کردن login
-    (function() {
-      const token = localStorage.getItem('factorino_token');
-      if (!token) {
-        window.location.href = '/login.html';
-        return;
-      }
-      
-      // شروع sync خودکار
-      window.addEventListener('DOMContentLoaded', () => {
-        window.FactorinoSync.startAutoSync();
-        
-        // Pull داده‌های اولیه (اگر دیتابیس خالی باشد)
-        window.FactorinoDB.loadState().then(state => {
-          if (state.products.length === 0 && state.customers.length === 0 && state.invoices.length === 0) {
-            console.log('📥 دریافت داده‌های اولیه...');
-            window.FactorinoSync.pullInitialData().then(success => {
-              if (success) {
-                window.location.reload();
-              }
-            });
-          }
-        });
-      });
-    })();
-  </script>
 
 <body>
   <div id="offlineBar" class="offline-bar" hidden>اینترنت قطع است؛ اطلاعات شما همچنان روی همین دستگاه ذخیره می‌شود.</div>
@@ -294,7 +263,9 @@
     <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
   </svg>
 
+  <script src="js/auth.js"></script>
   <script src="js/db.js"></script>
+  <script src="js/sync.js"></script>
   <script src="js/voice.js"></script>
   <script src="js/app.js"></script>
 </body>

@@ -15,3 +15,10 @@ build/
 .cache/
 coverage/
 .nyc_output/
+storage/*.sqlite
+storage/*.sqlite-wal
+storage/*.sqlite-shm
+storage/installed.lock
+storage/logs/
+storage/cache/
+vendor/

@@ -1,0 +1,351 @@
+/* =========================================================================
+   فاکتورینو — استایل صفحه ورود / ثبت‌نام
+   ========================================================================= */
+
+:root {
+  --brand:       #4f46e5;
+  --brand-2:     #7c3aed;
+  --brand-soft:  #eef2ff;
+  --brand-ink:   #3730a3;
+  --green:       #059669;
+  --red:         #dc2626;
+  --amber:       #b45309;
+
+  --bg:          #eef0f8;
+  --surface:     #ffffff;
+  --surface-2:   #f8fafc;
+  --ink:         #111827;
+  --ink-2:       #374151;
+  --muted:       #6b7280;
+  --line:        #e5e7eb;
+  --line-2:      #d5d9e0;
+
+  --radius:      18px;
+  --radius-sm:   12px;
+  --shadow:      0 18px 60px rgba(17, 24, 39, .14);
+  --font: "Vazirmatn", "IRANSans", "IRANYekan", "Segoe UI", Tahoma, system-ui, -apple-system, sans-serif;
+  --ease: cubic-bezier(.4, 0, .2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:         #0c0e14;
+    --surface:    #161922;
+    --surface-2:  #1d212b;
+    --ink:        #f3f4f6;
+    --ink-2:      #d1d5db;
+    --muted:      #9aa2b1;
+    --line:       #262b36;
+    --line-2:     #333a49;
+    --brand-soft: #1e1b4b;
+    --brand-ink:  #c7d2fe;
+    --shadow:     0 18px 60px rgba(0, 0, 0, .6);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* پس‌زمینه تزئینی */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  z-index: 0;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: .5;
+  pointer-events: none;
+}
+body::before {
+  width: 460px; height: 460px;
+  top: -160px; inset-inline-start: -140px;
+  background: radial-gradient(circle, rgba(79, 70, 229, .55), transparent 70%);
+}
+body::after {
+  width: 520px; height: 520px;
+  bottom: -200px; inset-inline-end: -180px;
+  background: radial-gradient(circle, rgba(124, 58, 237, .45), transparent 70%);
+}
+
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: var(--brand); text-decoration: none; font-weight: 600; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 6px; }
+
+/* ------------------------------------------------------------- چیدمان */
+.login-container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 1.25rem;
+}
+
+.login-card {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  padding: clamp(1.4rem, 4vw, 2.2rem);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  animation: card-in .35s var(--ease);
+  overflow: hidden;
+}
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(16px) scale(.985); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* --------------------------------------------------------------- سربرگ */
+.login-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.brand-icon {
+  display: grid;
+  place-items: center;
+  width: 62px; height: 62px;
+  margin: 0 auto .75rem;
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  border-radius: 19px;
+  box-shadow: 0 12px 28px rgba(79, 70, 229, .35);
+}
+.brand-icon svg {
+  width: 32px; height: 32px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.login-header h1 {
+  margin: 0;
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -.4px;
+}
+.login-header p {
+  margin: .2rem 0 0;
+  font-size: .84rem;
+  color: var(--muted);
+}
+
+/* ----------------------------------------------------------------- فرم */
+.auth-form[hidden] { display: none; }
+.auth-form { animation: form-in .24s var(--ease); }
+@keyframes form-in { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: none; } }
+
+.auth-form h2 {
+  margin: 0 0 1rem;
+  font-size: 1.02rem;
+  font-weight: 700;
+}
+
+.form-group { margin-bottom: .85rem; }
+.form-group label {
+  display: block;
+  margin-bottom: .3rem;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.form-group input {
+  width: 100%;
+  padding: .65rem .85rem;
+  min-height: 46px;
+  font-size: .93rem;
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  transition: border-color .16s var(--ease), box-shadow .16s var(--ease), background .16s var(--ease);
+}
+.form-group input::placeholder { color: var(--muted); opacity: .8; }
+.form-group input:focus {
+  outline: none;
+  background: var(--surface);
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+.form-group input:user-invalid {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, .12);
+}
+.form-group input[dir="ltr"] { text-align: start; }
+
+/* نوار قدرت رمز عبور */
+.pw-meter {
+  display: flex;
+  gap: .25rem;
+  margin-top: .4rem;
+}
+.pw-meter span {
+  flex: 1 1 0;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line);
+  transition: background .2s var(--ease);
+}
+.pw-meter[data-score="1"] span:nth-child(-n+1) { background: var(--red); }
+.pw-meter[data-score="2"] span:nth-child(-n+2) { background: var(--amber); }
+.pw-meter[data-score="3"] span:nth-child(-n+3) { background: #ca8a04; }
+.pw-meter[data-score="4"] span { background: var(--green); }
+.pw-hint { margin: .25rem 0 0; font-size: .72rem; color: var(--muted); }
+
+/* --------------------------------------------------------------- دکمه */
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  width: 100%;
+  margin-top: .35rem;
+  padding: .75rem 1rem;
+  min-height: 50px;
+  font-size: .96rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  border: 0;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 10px 24px rgba(79, 70, 229, .3);
+  transition: filter .16s var(--ease), transform .08s var(--ease), opacity .16s var(--ease);
+}
+.btn-primary:hover { filter: brightness(1.07); }
+.btn-primary:active { transform: translateY(1px); }
+.btn-primary[disabled] { opacity: .6; cursor: not-allowed; filter: none; }
+.btn-primary.is-loading { pointer-events: none; }
+.btn-primary.is-loading::before {
+  content: "";
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255, 255, 255, .4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+
+.switch-form {
+  margin: 1.1rem 0 0;
+  text-align: center;
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+/* --------------------------------------------------------- لایه بارگذاری */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .7rem;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(3px);
+  animation: fade-in .18s var(--ease);
+}
+.loading-overlay[hidden] { display: none; }
+.loading-overlay p { margin: 0; font-size: .86rem; color: var(--muted); }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+.spinner {
+  width: 38px; height: 38px;
+  border: 3px solid var(--brand-soft);
+  border-top-color: var(--brand);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* --------------------------------------------------------------- توست */
+.toast {
+  position: fixed;
+  inset-block-end: 1.25rem;
+  inset-inline: 1.25rem;
+  z-index: 20;
+  max-width: 420px;
+  margin-inline: auto;
+  padding: .8rem 1rem;
+  font-size: .88rem;
+  font-weight: 600;
+  text-align: center;
+  color: #fff;
+  background: #111827;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .3);
+  animation: toast-in .24s var(--ease);
+}
+.toast[hidden] { display: none; }
+.toast.success { background: var(--green); }
+.toast.error   { background: var(--red); }
+.toast.warn    { background: var(--amber); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+/* -------------------------------------------------------------- پانوشت */
+.login-foot {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  flex-wrap: wrap;
+  font-size: .76rem;
+  color: var(--muted);
+  text-align: center;
+}
+.login-foot a { font-weight: 600; }
+
+/* ---------------------------------------------------------- واکنش‌گرایی */
+@media (max-width: 520px) {
+  .login-container { padding: 0; justify-content: flex-start; }
+  .login-card {
+    max-width: none;
+    min-height: 100vh;
+    min-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 2rem 1.15rem calc(2rem + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .login-header { margin-bottom: 1.25rem; }
+  .toast { inset-inline: .9rem; inset-block-end: .9rem; }
+  .login-foot { padding: 0 1rem 1rem; }
+}
+
+@media (min-height: 900px) and (min-width: 521px) {
+  .login-card { margin-bottom: .5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}
