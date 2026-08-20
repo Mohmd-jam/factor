@@ -1,0 +1,57 @@
+name: حذف فایل‌های .md
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'تایید حذف فایل‌های .md (yes/no)'
+        required: true
+        default: 'no'
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: چک کد
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: حذف فایل‌های .md بجز README.md
+        run: |
+          # فایل‌های .md که باید حذف شوند
+          files_to_delete=(
+            "CHANGES.md"
+            "CODE_CHANGES_EXACT.md"
+            "FILES_CREATED.md"
+            "FINAL_SUMMARY.md"
+            "INDEX.md"
+            "PHP_SETUP.md"
+            "QUICKSTART.md"
+            "SETUP.md"
+            "START_HERE.md"
+          )
+          
+          # حذف فایل‌ها
+          for file in "${files_to_delete[@]}"; do
+            if [ -f "$file" ]; then
+              rm "$file"
+              echo "✅ حذف شد: $file"
+            fi
+          done
+
+      - name: کامیت تغییرات
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add -A
+          
+          # فقط اگر تغییرات وجود داشته باشه
+          if git diff --cached --quiet; then
+            echo "هیچ فایلی برای حذف نبود"
+          else
+            git commit -m "🗑️ حذف تمام فایل‌های .md به جز README.md"
+            git push
+            echo "✅ کامیت با موفقیت انجام شد"
+          fi
